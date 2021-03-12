@@ -1,6 +1,7 @@
 package io.silverman.hellojpa.domain.item;
 
 import io.silverman.hellojpa.domain.Category;
+import io.silverman.hellojpa.exception.NotEnoughStockException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,4 +28,16 @@ public abstract class Item {
 
     private int price;
     private int stockQuantity;
+
+    public void addStock(int quantity) {
+        stockQuantity += quantity;
+    }
+
+    public void removeStock(int quantity) {
+        int restStock = stockQuantity - quantity;
+        if (restStock < 0) {
+            throw new NotEnoughStockException("재고 수량이 부족합니다.");
+        }
+        stockQuantity = restStock;
+    }
 }
