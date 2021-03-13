@@ -1,17 +1,21 @@
 package io.silverman.hellojpa.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
 @Table(name = "orders")
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
 
     @Id
@@ -48,5 +52,15 @@ public class Order {
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
+    }
+
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems) {
+        Order order = new Order();
+        order.setMember(member);
+        order.setDelivery(delivery);
+        Arrays.stream(orderItems).forEach(order::addOrderItem);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.ORDER);
+        return order;
     }
 }
