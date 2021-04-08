@@ -20,6 +20,17 @@ public class ItemService {
         return item.getId();
     }
 
+    // 사용자가 price와 stockQuantity만 변경 가능하다고 가정
+    // 변경 가능한 필드만 파라미터로 받음
+    // 개수가 많으면 DTO 사용
+    public void updateItem(Long id, int price, int stockQuantity) {
+        Item foundItem = itemRepository.findOne(id);
+
+        // Dirty checking
+        foundItem.setPrice(price);
+        foundItem.setStockQuantity(stockQuantity);
+    }
+
     @Transactional(readOnly = true)
     public Item findItem(Long id) {
         return itemRepository.findOne(id);
