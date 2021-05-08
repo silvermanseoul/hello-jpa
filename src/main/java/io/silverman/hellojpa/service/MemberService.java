@@ -37,4 +37,9 @@ public class MemberService {
     public List<Member> findMembers() {
         return memberRepository.findAll();
     }
+
+    public void updateMember(Long id, String name) {
+        Member member = memberRepository.findOne(id);
+        member.setName(name); // Dirty checking
+    }
 }
