@@ -2,6 +2,8 @@ package io.silverman.hellojpa.api;
 
 import io.silverman.hellojpa.domain.*;
 import io.silverman.hellojpa.repository.OrderRepository;
+import io.silverman.hellojpa.dto.order.query.OrderQueryDto;
+import io.silverman.hellojpa.repository.order.query.OrderQueryRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,7 @@ import static java.util.stream.Collectors.toList;
 public class OrderApiController {
 
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     //== 엔티티를 조회해서 DTO로 변환 ==//
 
@@ -79,5 +82,12 @@ public class OrderApiController {
             orderPrice = orderItem.getOrderPrice();
             count = orderItem.getCount();
         }
+    }
+
+    //== DTO로 바로 조회 ==//
+
+    @GetMapping("/api/v3.0/orders")
+    public ResponseWrapper<List<OrderQueryDto>> ordersV30() {
+        return new ResponseWrapper<>(orderQueryRepository.findOrderQueryDtos());
     }
 }
