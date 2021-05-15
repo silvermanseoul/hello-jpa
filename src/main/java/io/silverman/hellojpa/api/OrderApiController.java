@@ -37,6 +37,14 @@ public class OrderApiController {
                 .collect(collectingAndThen(toList(), ResponseWrapper::new));
     }
 
+    @GetMapping("/api/v2.2/orders")
+    public ResponseWrapper<List<OrderDto>> ordersV22() {
+        List<Order> orders = orderRepository.findAllWithMemberDeliveryOrderItemsItem();
+        return orders.stream()
+                .map(OrderDto::new)
+                .collect(collectingAndThen(toList(), ResponseWrapper::new));
+    }
+
     @Data
     static class OrderDto {
 
