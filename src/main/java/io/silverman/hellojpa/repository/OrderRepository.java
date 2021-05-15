@@ -85,4 +85,13 @@ public class OrderRepository {
         cq.where(cb.and(criteria.toArray(new Predicate[criteria.size()])));
         return em.createQuery(cq).setMaxResults(1000).getResultList();
     }
+
+    public List<Order> findAllWithMemberDelivery() {
+        // ToOne 관계의 엔티티만 JOIN FETCH
+        return em.createQuery(
+                "select o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d", Order.class)
+                .getResultList();
+    }
 }
