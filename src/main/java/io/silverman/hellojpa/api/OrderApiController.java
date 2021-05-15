@@ -90,4 +90,9 @@ public class OrderApiController {
     public ResponseWrapper<List<OrderQueryDto>> ordersV30() {
         return new ResponseWrapper<>(orderQueryRepository.findOrderQueryDtos());
     }
+
+    @GetMapping("/api/v3.1/orders")
+    public ResponseWrapper<List<OrderQueryDto>> ordersV31() {
+        return new ResponseWrapper<>(orderQueryRepository.findOrderQueryDtosOptim());
+    }
 }

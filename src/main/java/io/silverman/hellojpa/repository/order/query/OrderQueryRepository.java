@@ -7,6 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Map;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,6 +24,20 @@ public class OrderQueryRepository {
 
         // ToMany 관계의 엔티티는 별도로 조회해서 조립
         orderQueryDtos.forEach(oqd -> oqd.setOrderItems(findOrderItemsWithItem(oqd.getOrderId())));
+
+        return orderQueryDtos;
+    }
+
+    public List<OrderQueryDto> findOrderQueryDtosOptim() {
+        // ToOne 관계의 엔티티만 JOIN
+        List<OrderQueryDto> orderQueryDtos = findOrdersWithMemberDelivery();
+
+        // ToMany 관계의 엔티티는 별도로 조회해서 조립
+        List<Long> orderIds = orderQueryDtos.stream()
+                .map(OrderQueryDto::getOrderId)
+                .collect(toList());
+        Map<Long, List<OrderItemQueryDto>> orderItemQueryDtosMap = findOrderItemsMapWithItem(orderIds);
+        orderQueryDtos.forEach(oqd -> oqd.setOrderItems(orderItemQueryDtosMap.get(oqd.getOrderId())));
 
         return orderQueryDtos;
     }
@@ -41,5 +59,16 @@ public class OrderQueryRepository {
                         " where oi.order.id = :orderId", OrderItemQueryDto.class)
                 .setParameter("orderId", orderId)
                 .getResultList();
+    }
+
+    private Map<Long, List<OrderItemQueryDto>> findOrderItemsMapWithItem(List<Long> orderIds) {
+        return em.createQuery(
+                "select new io.silverman.hellojpa.dto.order.query.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" +
+                        " from OrderItem oi" +
+                        " join oi.item i" +
+                        " where oi.order.id in :orderIds", OrderItemQueryDto.class)
+                .setParameter("orderIds", orderIds)
+                .getResultStream()
+                .collect(groupingBy(OrderItemQueryDto::getOrderId));
     }
 }
