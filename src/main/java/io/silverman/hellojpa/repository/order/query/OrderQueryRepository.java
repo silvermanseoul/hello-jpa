@@ -2,6 +2,7 @@ package io.silverman.hellojpa.repository.order.query;
 
 import io.silverman.hellojpa.dto.order.query.OrderItemQueryDto;
 import io.silverman.hellojpa.dto.order.query.OrderQueryDto;
+import io.silverman.hellojpa.dto.order.query.OrderQueryFlatDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -40,6 +41,18 @@ public class OrderQueryRepository {
         orderQueryDtos.forEach(oqd -> oqd.setOrderItems(orderItemQueryDtosMap.get(oqd.getOrderId())));
 
         return orderQueryDtos;
+    }
+
+    public List<OrderQueryFlatDto> findOrderQueryFlatDtos() {
+        // 모든 엔티티를 JOIN
+        return em.createQuery(
+                "select new io.silverman.hellojpa.dto.order.query.OrderQueryFlatDto(o.id, m.name, o.orderDate, o.status, d.address, i.name, oi.orderPrice, oi.count)" +
+                        " from Order o" +
+                        " join o.member m" +
+                        " join o.delivery d" +
+                        " join o.orderItems oi" +
+                        " join oi.item i", OrderQueryFlatDto.class)
+                .getResultList();
     }
 
     private List<OrderQueryDto> findOrdersWithMemberDelivery() {

@@ -1,8 +1,9 @@
 package io.silverman.hellojpa.api;
 
 import io.silverman.hellojpa.domain.*;
-import io.silverman.hellojpa.repository.OrderRepository;
+import io.silverman.hellojpa.dto.order.query.OrderItemQueryDto;
 import io.silverman.hellojpa.dto.order.query.OrderQueryDto;
+import io.silverman.hellojpa.repository.OrderRepository;
 import io.silverman.hellojpa.repository.order.query.OrderQueryRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -94,5 +94,15 @@ public class OrderApiController {
     @GetMapping("/api/v3.1/orders")
     public ResponseWrapper<List<OrderQueryDto>> ordersV31() {
         return new ResponseWrapper<>(orderQueryRepository.findOrderQueryDtosOptim());
+    }
+
+    @GetMapping("/api/v3.2/orders")
+    public ResponseWrapper<List<OrderQueryDto>> ordersV32() {
+        return orderQueryRepository.findOrderQueryFlatDtos().stream()
+                .collect(groupingBy(oqfd -> new OrderQueryDto(oqfd.getOrderId(), oqfd.getMemberName(), oqfd.getOrderDate(), oqfd.getOrderStatus(), oqfd.getAddress()),
+                        mapping(oqfd -> new OrderItemQueryDto(oqfd.getOrderId(), oqfd.getItemName(), oqfd.getOrderPrice(), oqfd.getCount()), toList())))
+                .entrySet().stream()
+                .map(e -> new OrderQueryDto(e.getKey().getOrderId(), e.getKey().getMemberName(), e.getKey().getOrderDate(), e.getKey().getOrderStatus(), e.getKey().getAddress(), e.getValue()))
+                .collect(collectingAndThen(toList(), ResponseWrapper::new));
     }
 }
