@@ -86,16 +86,21 @@ public class OrderRepository {
         return em.createQuery(cq).setMaxResults(1000).getResultList();
     }
 
-    public List<Order> findAll() {
-        return em.createQuery("select o from Order o", Order.class).getResultList();
+    public List<Order> findAll(int offset, int limit) {
+        return em.createQuery("select o from Order o", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
     }
 
-    public List<Order> findAllWithMemberDelivery() {
+    public List<Order> findAllWithMemberDelivery(int offset, int limit) {
         // ToOne 관계의 엔티티만 JOIN FETCH
         return em.createQuery(
                 "select o from Order o" +
                         " join fetch o.member m" +
                         " join fetch o.delivery d", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
                 .getResultList();
     }
 

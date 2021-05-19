@@ -19,9 +19,9 @@ public class OrderQueryRepository {
 
     private final EntityManager em;
 
-    public List<OrderQueryDto> findOrderQueryDtos() {
+    public List<OrderQueryDto> findOrderQueryDtos(int offset, int limit) {
         // ToOne 관계의 엔티티만 JOIN
-        List<OrderQueryDto> orderQueryDtos = findOrdersWithMemberDelivery();
+        List<OrderQueryDto> orderQueryDtos = findOrdersWithMemberDelivery(offset, limit);
 
         // ToMany 관계의 엔티티는 별도로 조회해서 조립
         orderQueryDtos.forEach(oqd -> oqd.setOrderItems(findOrderItemsWithItem(oqd.getOrderId())));
@@ -29,9 +29,9 @@ public class OrderQueryRepository {
         return orderQueryDtos;
     }
 
-    public List<OrderQueryDto> findOrderQueryDtosOptim() {
+    public List<OrderQueryDto> findOrderQueryDtosOptim(int offset, int limit) {
         // ToOne 관계의 엔티티만 JOIN
-        List<OrderQueryDto> orderQueryDtos = findOrdersWithMemberDelivery();
+        List<OrderQueryDto> orderQueryDtos = findOrdersWithMemberDelivery(offset, limit);
 
         // ToMany 관계의 엔티티는 별도로 조회해서 조립
         List<Long> orderIds = orderQueryDtos.stream()
@@ -55,12 +55,14 @@ public class OrderQueryRepository {
                 .getResultList();
     }
 
-    private List<OrderQueryDto> findOrdersWithMemberDelivery() {
+    private List<OrderQueryDto> findOrdersWithMemberDelivery(int offset, int limit) {
         return em.createQuery(
                 "select new io.silverman.hellojpa.dto.order.query.OrderQueryDto(o.id, m.name, o.orderDate, o.status, d.address)" +
                         " from Order o" +
                         " join o.member m" +
                         " join o.delivery d", OrderQueryDto.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
                 .getResultList();
     }
 

@@ -1,6 +1,9 @@
 package io.silverman.hellojpa.api;
 
-import io.silverman.hellojpa.domain.*;
+import io.silverman.hellojpa.domain.Address;
+import io.silverman.hellojpa.domain.Order;
+import io.silverman.hellojpa.domain.OrderItem;
+import io.silverman.hellojpa.domain.OrderStatus;
 import io.silverman.hellojpa.dto.order.query.OrderItemQueryDto;
 import io.silverman.hellojpa.dto.order.query.OrderQueryDto;
 import io.silverman.hellojpa.repository.OrderRepository;
@@ -8,6 +11,7 @@ import io.silverman.hellojpa.repository.order.query.OrderQueryRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -25,16 +29,18 @@ public class OrderApiController {
     //== 엔티티를 조회해서 DTO로 변환 ==//
 
     @GetMapping("/api/v2.0/orders")
-    public ResponseWrapper<List<OrderDto>> ordersV20() {
-        List<Order> orders = orderRepository.findAll();
+    public ResponseWrapper<List<OrderDto>> ordersV20(@RequestParam(value = "offset", defaultValue = "0") int offset,
+                                                     @RequestParam(value = "limit", defaultValue = "100") int limit) {
+        List<Order> orders = orderRepository.findAll(offset, limit);
         return orders.stream()
                 .map(OrderDto::new)
                 .collect(collectingAndThen(toList(), ResponseWrapper::new));
     }
 
     @GetMapping("/api/v2.1/orders")
-    public ResponseWrapper<List<OrderDto>> ordersV21() {
-        List<Order> orders = orderRepository.findAllWithMemberDelivery();
+    public ResponseWrapper<List<OrderDto>> ordersV21(@RequestParam(value = "offset", defaultValue = "0") int offset,
+                                                     @RequestParam(value = "limit", defaultValue = "100") int limit) {
+        List<Order> orders = orderRepository.findAllWithMemberDelivery(offset, limit);
         return orders.stream()
                 .map(OrderDto::new)
                 .collect(collectingAndThen(toList(), ResponseWrapper::new));
@@ -87,13 +93,15 @@ public class OrderApiController {
     //== DTO로 바로 조회 ==//
 
     @GetMapping("/api/v3.0/orders")
-    public ResponseWrapper<List<OrderQueryDto>> ordersV30() {
-        return new ResponseWrapper<>(orderQueryRepository.findOrderQueryDtos());
+    public ResponseWrapper<List<OrderQueryDto>> ordersV30(@RequestParam(value = "offset", defaultValue = "0") int offset,
+                                                          @RequestParam(value = "limit", defaultValue = "100") int limit) {
+        return new ResponseWrapper<>(orderQueryRepository.findOrderQueryDtos(offset, limit));
     }
 
     @GetMapping("/api/v3.1/orders")
-    public ResponseWrapper<List<OrderQueryDto>> ordersV31() {
-        return new ResponseWrapper<>(orderQueryRepository.findOrderQueryDtosOptim());
+    public ResponseWrapper<List<OrderQueryDto>> ordersV31(@RequestParam(value = "offset", defaultValue = "0") int offset,
+                                                          @RequestParam(value = "limit", defaultValue = "100") int limit) {
+        return new ResponseWrapper<>(orderQueryRepository.findOrderQueryDtosOptim(offset, limit));
     }
 
     @GetMapping("/api/v3.2/orders")
