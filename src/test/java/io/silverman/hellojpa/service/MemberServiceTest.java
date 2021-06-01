@@ -26,7 +26,7 @@ class MemberServiceTest {
         member.setName("Park");
 
         // When
-        Long savedId = memberService.join(member);
+        Long savedId = memberService.signUp(member);
         Member foundMember = memberRepository.findOne(savedId);
 
         // Then
@@ -42,9 +42,9 @@ class MemberServiceTest {
         member2.setName("Park");
 
         // When
-        memberService.join(member1);
+        memberService.signUp(member1);
         IllegalStateException e = Assertions.assertThrows(IllegalStateException.class,
-                () -> memberService.join(member2));
+                () -> memberService.signUp(member2));
 
         // Then
         assertEquals("이미 존재하는 회원입니다.", e.getMessage());

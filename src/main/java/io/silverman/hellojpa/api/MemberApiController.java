@@ -25,7 +25,7 @@ public class MemberApiController {
     public MemberCreateResponse createMemberV2_0(@RequestBody @Valid MemberCreateRequest request) {
         Member member = new Member();
         member.setName(request.getName());
-        Long id = memberService.join(member);
+        Long id = memberService.signUp(member);
         return new MemberCreateResponse(id);
     }
 

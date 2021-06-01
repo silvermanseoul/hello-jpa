@@ -15,7 +15,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    public Long join(Member member) {
+    public Long signUp(Member member) {
         validateDuplicateMember(member);
         memberRepository.save(member);
         return member.getId();
